@@ -899,6 +899,17 @@ printf("Client for layer %d\n", i);
             net.truth = l.output;
         }
     }
+    /* Read data from server */
+    int read_count = 0;
+    layer l = net.layers[net.n-1];
+    msg_size = l.batch * l.outputs;
+    while (read_count < sizeof(float) * msg_size)
+    {
+	    read_count += read(client_sockfd, msg_socket + read_count, sizeof(float) * msg_size - read_count);
+    }
+    printf("Read: %d Bytes\n", read_count);
+    cuda_push_array(net.input_gpu, (float *)msg_socket, msg_size);
+
     pull_network_output(netp);
     calc_network_cost(netp);
 
